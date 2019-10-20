@@ -1,10 +1,9 @@
 - name: Criando o Security Group
   local_action:
-    module: ec_dois_group
+    module: ec2_group
     name: "{{ security_group }}"
     description: Security Group Giropops
     region: "{{ region }}"
-    profile: "{{ profile }}"
     rules:
     - proto: tcp
       from_port: 22
@@ -52,11 +51,10 @@
   register: basic_firewall
 
 - name: Criando a instancia EC2
-  local_action: ec_dois
+  local_action: ec2
     group={{ security_group }}
     instance_type={{ instance_type }}
     image={{ image }}
-    profile="{{ profile }}"
     wait=true
     region={{ region }}
     keypair={{ keypair }}
@@ -71,14 +69,7 @@
   local_action: lineinfile
     dest="./hosts"
     regexp={{ item.public_ip }}
-    insertafter="[ip-publico]" line={{ item.public_ip }}
-  with_items: "{{ ec_dois.instances }}"
-
-- name: Adicionando o ip privado da instancia criada no arquivo hosts
-  local_action: lineinfile
-    dest="./hosts"
-    regexp={{ item.privado_ip }}
-    insertafter="[ip-privado]" line={{ item.privado_ip }}
+    insertafter="[cluster]" line={{ item.public_ip }}
   with_items: "{{ ec_dois.instances }}"
 
 - name: Esperando o SSH
@@ -89,11 +80,11 @@
   with_items: "{{ ec_dois.instances }}"
 
 - name: Adicionando um nome tag na instancia
-  local_action: ec_dois_tag resource={{ item.id }} region={{ region }} profile={{ profile }} state=present
+  local_action: ec2_tag resource={{ item.id }} region={{ region }} state=present
   with_items: "{{ ec_dois.instances }}"
   args:
     tags:
-      Name: ansible-{{ item.ami_launch_index|int + 1 }}
+      Name: ansible-{{ app_env }}-{{ item.ami_launch_index|int + 1 }}
 
 - name: Adicionando a maquina criada no known_hosts
   shell: ssh-keyscan -H {{ item.public_ip }} >> ~/.ssh/known_hosts
