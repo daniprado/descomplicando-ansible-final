@@ -1,4 +1,4 @@
-- hosts: todos
+- hosts: all
   become: yes
   user: ubuntu
   gather_facts: no
@@ -6,13 +6,13 @@
   - name: 'atualizando repo'
     raw: 'apt-get update'
   - name: 'instalando o python'
-    raw: 'apt-get install python'
+    raw: 'apt-get install -y python'
   vars_files:
   - 'secrets/{{ app_env }}/cofre.yaml'
   roles:
   - { role: install-k8s,	tags: ["install_k8s_role"]}
 
-- hosts: k8s-master
+- hosts: master
   become: yes
   user: ubuntu
   vars_files:
@@ -20,7 +20,7 @@
   roles:
   - { role: create-cluster,	tags: ["create_cluster_role"]}
 
-- hosts: k8s-workers
+- hosts: workers
   become: yes
   user: ubuntu
   vars_files:
@@ -28,7 +28,7 @@
   roles:
   - { role: join-workers,	tags: ["join_workers_role"]}
 
-- hosts: k8s-master
+- hosts: master
   become: yes
   user: ubuntu
   vars_files:
