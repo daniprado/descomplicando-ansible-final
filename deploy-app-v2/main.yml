@@ -1,5 +1,7 @@
-- hosts: k8s-master
+- hosts: "k8s-master-{{ app_env }}"
   become: yes
   user: ubuntu
+  vars_files:
+  - "roles/common/vars/{{ app_env }}/main.yml"
   roles:
-  - common
+  - { role: common,	tags: ["deploy_app_v2"]}

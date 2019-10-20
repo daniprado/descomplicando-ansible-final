@@ -11,9 +11,12 @@
     kubeadm reset --force
   register: kubeadm-reset_node
 
+- set_fact:
+  workers_group: "k8s-workers-{{ app_env }}"
+
 - name: "Kubeadm join"
   shell: 
-    kubeadm join --node-name "kubernetes-{{ app_env }}-0{{ groups.workers.index(inventory_hostname) + 2 }}" --token={{ hostvars['K8S_TOKEN_HOLDER']['token'] }}
+    kubeadm join --node-name "kubernetes-{{ app_env }}-0{{ groups.get(workers_group).index(inventory_hostname) + 2 }}" --token={{ hostvars['K8S_TOKEN_HOLDER']['token'] }}
     --discovery-token-ca-cert-hash sha256:{{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}
     {{K8S_MASTER_NODE_IP}}:{{K8S_API_SECURE_PORT}}
 

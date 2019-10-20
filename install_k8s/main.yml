@@ -1,4 +1,6 @@
-- hosts: all
+- hosts:
+  - "k8s-master-{{ app_env }}"
+  - "k8s-workers-{{ app_env }}"
   become: yes
   user: ubuntu
   gather_facts: no
@@ -12,7 +14,7 @@
   roles:
   - { role: install-k8s,	tags: ["install_k8s_role"]}
 
-- hosts: master
+- hosts: "k8s-master-{{ app_env }}"
   become: yes
   user: ubuntu
   vars_files:
@@ -20,7 +22,7 @@
   roles:
   - { role: create-cluster,	tags: ["create_cluster_role"]}
 
-- hosts: workers
+- hosts: "k8s-workers-{{ app_env }}"
   become: yes
   user: ubuntu
   vars_files:
@@ -28,7 +30,7 @@
   roles:
   - { role: join-workers,	tags: ["join_workers_role"]}
 
-- hosts: master
+- hosts: "k8s-master-{{ app_env }}"
   become: yes
   user: ubuntu
   vars_files:

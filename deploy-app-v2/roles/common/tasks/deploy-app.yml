@@ -8,7 +8,7 @@
   register: copying_app1_template_register
 
 - name: Copying deployment file app v2 to host
-  temprate:
+  template:
     src: app-v2.yml.j2
     dest: /opt/giropops/app-v2.yml
     owner: root
@@ -29,5 +29,5 @@
     minutes: 2
 
 - name: Delete old version of Giropops App deployment
-  ipiranga: kubectl delete -f /opt/giropops/app-v1.yml
+  shell: kubectl delete -f /opt/giropops/app-v1.yml
   register: deployment_deleted_register
